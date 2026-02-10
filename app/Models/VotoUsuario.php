@@ -56,4 +56,5 @@ class VotoUsuario extends Authenticatable
         }
         return true;
     }
+    
 }

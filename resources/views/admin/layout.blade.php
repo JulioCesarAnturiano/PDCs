@@ -1,132 +1,152 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>@yield('title', 'Admin')</title>
+    <meta charset="UTF-8">
+    <title>@yield('title', 'Panel Admin')</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="https://cdn.tailwindcss.com"></script>
+    {{-- CSS --}}
+    <link rel="stylesheet" href="{{ asset('css/cssgeneral.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <style>
-    .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow:0 10px 20px rgba(0,0,0,.04); }
-    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.55rem .9rem; border-radius:12px; font-weight:600; border:1px solid transparent; }
-    .btn-primary { background:#111827; color:#fff; }
-    .btn-primary:hover { background:#0b1220; }
-    .btn-outline { background:#fff; border-color:#e5e7eb; color:#111827; }
-    .btn-outline:hover { background:#f9fafb; }
-    .input, .select, .textarea { width:100%; border:1px solid #e5e7eb; border-radius:12px; padding:.6rem .75rem; background:#fff; }
-    .textarea { min-height:100px; }
-    .label { display:block; font-size:.875rem; color:#374151; margin-bottom:.35rem; font-weight:600; }
-    .table { width:100%; border-collapse:collapse; }
-    .table th { text-align:left; font-size:.8rem; color:#6b7280; padding:.75rem; border-bottom:1px solid #e5e7eb; }
-    .table td { padding:.75rem; border-bottom:1px solid #f1f5f9; }
-    .badge { font-size:.75rem; padding:.15rem .5rem; border-radius:999px; border:1px solid #e5e7eb; background:#f9fafb; color:#111827; }
-    .alert { border-radius:16px; padding:14px 16px; border:1px solid; display:flex; gap:12px; }
-    .alert-success { background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
-    .alert-error { background:#fef2f2; border-color:#fecaca; color:#991b1b; }
-    .alert-info { background:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
-    .card-header { padding:18px 18px 10px 18px; display:flex; align-items:center; justify-content:space-between; }
-    .card-title { font-size:1.05rem; font-weight:800; color:#111827; }
-    .card-subtitle { font-size:.85rem; color:#6b7280; }
-    .card-body { padding:18px; }
-    .navlink { display:flex; align-items:center; gap:.6rem; padding:.55rem .75rem; border-radius:12px; color:#111827; }
-    .navlink:hover { background:#f3f4f6; }
-    .navlink-active { background:#111827; color:#fff; }
-    .navlink-active:hover { background:#0b1220; color:#fff; }
-  </style>
+    @stack('styles')
 </head>
-<body class="bg-slate-50">
-  <div class="min-h-screen flex">
+<body class="admin-body">
 
-    {{-- SIDEBAR --}}
-    <aside class="w-72 bg-white border-r border-slate-200 p-4 hidden md:block">
-      <div class="mb-4">
-        <div class="text-lg font-black text-slate-900">PDC</div>
-        <div class="text-xs text-slate-500">Panel Administrador</div>
-      </div>
+    {{-- Botón mobile --}}
+    <button class="admin-mobile-toggle" type="button" id="adminMobileToggle" aria-label="Abrir menú">
+        <i class="fas fa-bars"></i>
+    </button>
 
-      @php
-        $is = fn($name) => request()->routeIs($name);
-        $lnk = fn($name) => $is($name) ? 'navlink navlink-active' : 'navlink';
-      @endphp
+    <div class="admin-shell">
 
-      <nav class="space-y-1">
-        <a class="{{ $lnk('admin.dashboard') }}" href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <a class="{{ $lnk('admin.usuarios.index') }}" href="{{ route('admin.usuarios.index') }}">Usuarios</a>
-        <a class="{{ $lnk('admin.roles.index') }}" href="{{ route('admin.roles.index') }}">Roles</a>
-        <a class="{{ $lnk('admin.tipo_eleccion.index') }}" href="{{ route('admin.tipo_eleccion.index') }}">Tipo Elección</a>
-        <a class="{{ $lnk('admin.geografico.index') }}" href="{{ route('admin.geografico.index') }}">Geográfico</a>
-        <a class="{{ $lnk('admin.mesas.index') }}" href="{{ route('admin.mesas.index') }}">Mesas</a>
-        <a class="{{ $lnk('admin.votos.index') }}" href="{{ route('admin.votos.index') }}">Votos</a>
-      </nav>
-
-      <div class="mt-6 pt-4 border-t border-slate-200">
-        <form method="POST" action="{{ route('logout') }}">
-          @csrf
-          <button class="btn btn-outline w-full" type="submit">Cerrar sesión</button>
-        </form>
-      </div>
-    </aside>
-
-    {{-- MAIN --}}
-    <main class="flex-1">
-      {{-- TOPBAR --}}
-      <div class="bg-white border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <div>
-            <div class="text-sm text-slate-500">@yield('page_title', 'Admin')</div>
-            <div class="text-xs text-slate-400">{{ now()->format('d/m/Y H:i') }}</div>
-          </div>
-
-          <div class="text-sm text-slate-600">
-            @php
-              $u = auth()->user();
-              $name = $u->nombre_usuario ?? $u->name ?? 'Usuario';
-            @endphp
-            <span class="font-semibold text-slate-800">{{ $name }}</span>
-          </div>
-        </div>
-      </div>
-
-      {{-- CONTENT --}}
-      <div class="max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-4">
-
-        {{-- Mensajes success/error --}}
-        @if(session('success'))
-          <div class="alert alert-success">
-            <div>
-              <div class="font-extrabold">OK</div>
-              <div class="text-sm">{{ session('success') }}</div>
+        {{-- SIDEBAR --}}
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-brand">
+                <div class="admin-brand__mark">A</div>
+                <div>
+                    <div class="admin-brand__title">ADMIN</div>
+                    <div class="admin-brand__sub">Panel de control</div>
+                </div>
             </div>
-          </div>
-        @endif
 
-        @if(session('error'))
-          <div class="alert alert-error">
-            <div>
-              <div class="font-extrabold">Error</div>
-              <div class="text-sm">{{ session('error') }}</div>
+            <nav class="admin-nav">
+                <a class="navlink {{ request()->routeIs('admin.dashboard') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.dashboard') }}">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a class="navlink {{ request()->routeIs('admin.votos.index') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.votos.index') }}">
+                    <i class="fas fa-poll"></i>
+                    <span>Votos</span>
+                </a>
+
+                <a class="navlink {{ request()->routeIs('admin.votos.registrar') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.votos.registrar') }}">
+                    <i class="fas fa-plus"></i>
+                    <span>Registrar voto</span>
+                </a>
+
+                <a class="navlink {{ request()->routeIs('admin.usuarios.*') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.usuarios.index') }}">
+                    <i class="fas fa-users"></i>
+                    <span>Usuarios</span>
+                </a>
+
+                <a class="navlink {{ request()->routeIs('admin.roles.*') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.roles.index') }}">
+                    <i class="fas fa-user-tag"></i>
+                    <span>Roles</span>
+                </a>
+
+                <a class="navlink {{ request()->routeIs('admin.tipo_eleccion.*') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.tipo_eleccion.index') }}">
+                    <i class="fas fa-vote-yea"></i>
+                    <span>Tipo Elección</span>
+                </a>
+
+                <a class="navlink {{ request()->routeIs('admin.geografico.*') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.geografico.index') }}">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Geográfico</span>
+                </a>
+
+                <a class="navlink {{ request()->routeIs('admin.mesas.*') ? 'navlink-active' : '' }}"
+                   href="{{ route('admin.mesas.index') }}">
+                    <i class="fas fa-table"></i>
+                    <span>Mesas</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar__footer">
+                <form method="POST" action="{{ route('admin.logout') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-outline btn-block">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Salir</span>
+                    </button>
+                </form>
             </div>
-          </div>
-        @endif
+        </aside>
 
-        {{-- Errores de validación --}}
-        @if($errors->any())
-          <div class="alert alert-error">
-            <div>
-              <div class="font-extrabold">Revisa los campos</div>
-              <ul class="text-sm list-disc ml-5">
-                @foreach($errors->all() as $e)
-                  <li>{{ $e }}</li>
-                @endforeach
-              </ul>
-            </div>
-          </div>
-        @endif
+        {{-- MAIN --}}
+        <main class="admin-main">
 
-        @yield('content')
-      </div>
-    </main>
-  </div>
+            {{-- TOPBAR --}}
+            <header class="admin-topbar">
+                <div class="admin-topbar__inner">
+                    <div>
+                        <div class="admin-breadcrumb">@yield('page_title', 'Panel')</div>
+                        <div class="admin-date">
+                            <i class="far fa-calendar"></i>
+                            <span>{{ now()->format('d/m/Y') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="admin-user">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="admin-user__name">{{ auth()->user()->nombre_usuario ?? auth()->user()->name }}</span>
+                    </div>
+                </div>
+            </header>
+
+            {{-- CONTENT --}}
+            <section class="admin-content">
+                @yield('content')
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        (function () {
+            const btn = document.getElementById('adminMobileToggle');
+            const sidebar = document.getElementById('adminSidebar');
+
+            if (!btn || !sidebar) return;
+
+            btn.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+
+            // Cierra el sidebar al hacer click fuera (solo en móvil)
+            document.addEventListener('click', (e) => {
+                const isMobile = window.matchMedia('(max-width: 900px)').matches;
+                if (!isMobile) return;
+
+                const clickedInsideSidebar = sidebar.contains(e.target);
+                const clickedToggle = btn.contains(e.target);
+
+                if (!clickedInsideSidebar && !clickedToggle) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        })();
+    </script>
+
+    @stack('scripts')
 </body>
 </html>

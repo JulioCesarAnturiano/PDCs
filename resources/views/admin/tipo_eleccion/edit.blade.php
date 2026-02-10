@@ -4,32 +4,66 @@
 @section('page_title', 'Tipo Elección / Editar')
 
 @section('content')
+<div class="page">
+
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Editar Tipo Elección</h1>
+      <p class="page-sub">{{ $item->nombre }}</p>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-outline btn-sm" href="{{ route('admin.tipo_eleccion.index') }}">
+        <i class="fas fa-arrow-left"></i> Volver
+      </a>
+    </div>
+  </div>
+
   <div class="card">
-    <div class="card-header">
+    <div class="card-head">
       <div>
-        <div class="card-title">Editar Tipo Elección</div>
-        <div class="card-subtitle">{{ $item->nombre }}</div>
+        <h3 class="card-title">Datos</h3>
+        <div class="card-sub">Actualiza nombre y código</div>
       </div>
-      <a class="btn btn-outline" href="{{ route('admin.tipo_eleccion.index') }}">Volver</a>
     </div>
 
     <div class="card-body">
-      <form class="space-y-4" method="POST" action="{{ route('admin.tipo_eleccion.update', $item->id_tipo_eleccion) }}">
+      <form class="form" method="POST" action="{{ route('admin.tipo_eleccion.actualizar', $item->id_tipo_eleccion) }}">
         @csrf
         @method('PUT')
 
-        <div>
-          <label class="label">Nombre</label>
-          <input class="input" name="nombre" value="{{ old('nombre', $item->nombre) }}" required>
+        <div class="form-grid">
+          <div class="field">
+            <label class="label">Nombre <span class="req">*</span></label>
+            <div class="control">
+              <i class="fas fa-font"></i>
+              <input class="input" name="nombre" value="{{ old('nombre', $item->nombre) }}" required>
+            </div>
+            @error('nombre')
+              <p class="error">{{ $message }}</p>
+            @enderror
+          </div>
+
+          <div class="field">
+            <label class="label">Código <span class="req">*</span></label>
+            <div class="control">
+              <i class="fas fa-hashtag"></i>
+              <input class="input" name="codigo" value="{{ old('codigo', $item->codigo) }}" required>
+            </div>
+            @error('codigo')
+              <p class="error">{{ $message }}</p>
+            @enderror
+          </div>
         </div>
 
-        <div>
-          <label class="label">Código</label>
-          <input class="input" name="codigo" value="{{ old('codigo', $item->codigo) }}" required>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">
+            <i class="fas fa-save"></i> Actualizar
+          </button>
         </div>
-
-        <button class="btn btn-primary" type="submit">Actualizar</button>
       </form>
     </div>
   </div>
+
+</div>
 @endsection

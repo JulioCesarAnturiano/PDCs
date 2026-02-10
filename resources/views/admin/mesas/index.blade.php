@@ -3,19 +3,35 @@
 @section('title', 'Mesas')
 @section('page_title', 'Mesas')
 
+
+
 @section('content')
+<div class="page">
+
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Mesas</h1>
+      <p class="page-sub">Control y administración</p>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-primary btn-sm" href="{{ route('admin.mesas.crear') }}">
+        <i class="fas fa-plus"></i> Nueva
+      </a>
+    </div>
+  </div>
+
   <div class="card">
-    <div class="card-header">
+    <div class="card-head">
       <div>
-        <div class="card-title">Listado de Mesas</div>
-        <div class="card-subtitle">Control y administración</div>
+        <h3 class="card-title">Listado de Mesas</h3>
+        <div class="card-sub">Registros disponibles</div>
       </div>
-      <a class="btn btn-primary" href="{{ route('admin.mesas.create') }}">Nueva</a>
     </div>
 
     <div class="card-body">
       <div class="table-wrap">
-        <table class="table">
+        <table class="table table-admin">
           <thead>
             <tr>
               <th>ID</th>
@@ -27,6 +43,7 @@
               <th class="text-right">Acciones</th>
             </tr>
           </thead>
+
           <tbody>
             @forelse($items as $m)
               <tr>
@@ -42,24 +59,45 @@
                     <span class="badge badge-danger">No</span>
                   @endif
                 </td>
+
                 <td class="text-right">
-                  <div class="actions" style="justify-content:flex-end;">
-                    <a class="btn btn-sm btn-outline" href="{{ route('admin.mesas.edit', $m->id_mesa) }}">Editar</a>
-                    <form method="POST" action="{{ route('admin.mesas.destroy', $m->id_mesa) }}"
+                  <div class="actions">
+                    <a class="btn btn-sm btn-outline" href="{{ route('admin.mesas.editar', $m->id_mesa) }}">
+                      <i class="fas fa-edit"></i> Editar
+                    </a>
+
+                    <form class="inline" method="POST" action="{{ route('admin.mesas.eliminar', $m->id_mesa) }}"
                           onsubmit="return confirm('¿Eliminar mesa?');">
                       @csrf
                       @method('DELETE')
-                      <button class="btn btn-sm btn-danger" type="submit">Eliminar</button>
+                      <button class="btn btn-sm btn-outline btn-danger-outline" type="submit">
+                        <i class="fas fa-trash"></i> Eliminar
+                      </button>
                     </form>
                   </div>
                 </td>
               </tr>
             @empty
-              <tr><td colspan="7" class="text-muted">Sin registros.</td></tr>
+              <tr>
+                <td colspan="7" class="empty">
+                  <div class="empty-state">
+                    <i class="fas fa-table"></i>
+                    <div>
+                      <div class="empty-title">Sin registros</div>
+                      <div class="empty-sub">Crea la primera mesa para empezar.</div>
+                    </div>
+                    <a href="{{ route('admin.mesas.crear') }}" class="btn btn-primary btn-sm">
+                      Crear mesa
+                    </a>
+                  </div>
+                </td>
+              </tr>
             @endforelse
           </tbody>
         </table>
       </div>
     </div>
   </div>
+
+</div>
 @endsection
