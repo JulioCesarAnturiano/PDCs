@@ -7,10 +7,9 @@ use App\Http\Controllers\VotoGeograficoController;
 use App\Http\Controllers\VotoMesaController;
 use App\Http\Controllers\VotosController;
 
-// Estos los hará Persona 1 (si aún no existen, comenta estas 4 líneas o crea los controladores)
+// Admin
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\VotoUsuarioController;
-use App\Http\Controllers\VotoTipoEleccionController;
 use App\Http\Controllers\RoleController;
 
 /*
@@ -22,6 +21,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Resultados públicos (sin auth)
 Route::view('/resultados', 'admin.auth.resultado')->name('resultado.publico');
 
 /*
@@ -29,9 +29,14 @@ Route::view('/resultados', 'admin.auth.resultado')->name('resultado.publico');
 | AUTH
 |--------------------------------------------------------------------------
 */
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +45,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
 
-    // Dashboard
+    // /admin -> /admin/dashboard
+    Route::get('/', function () {
+        return redirect()->route('admin.dashboard');
+    })->name('home');
+
+    // Dashboard (cualquier usuario logueado puede entrar)
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     /*
@@ -50,7 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     */
     Route::middleware(['role:admin'])->group(function () {
 
-        // Usuarios
+        // Usuarios (tu tabla voto_usuario)
         Route::get('/usuarios', [VotoUsuarioController::class, 'index'])->name('usuarios.index');
         Route::get('/usuarios/create', [VotoUsuarioController::class, 'create'])->name('usuarios.create');
         Route::post('/usuarios', [VotoUsuarioController::class, 'store'])->name('usuarios.store');
@@ -58,10 +68,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::put('/usuarios/{id}', [VotoUsuarioController::class, 'update'])->name('usuarios.update');
         Route::delete('/usuarios/{id}', [VotoUsuarioController::class, 'destroy'])->name('usuarios.destroy');
 
-        // Roles
+        // Roles (Spatie)
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-
-
 
         // Geográfico
         Route::get('/geografico', [VotoGeograficoController::class, 'index'])->name('geografico.index');
