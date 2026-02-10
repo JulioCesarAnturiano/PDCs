@@ -13,7 +13,7 @@ class VotoUsuario extends Authenticatable
 
     protected $table = 'voto_usuario';
     protected $primaryKey = 'id_usuario';
-    protected $guard_name = 'sanctum';
+    protected $guard_name = 'web';
 
     protected $fillable = [
         'nombre_usuario',
