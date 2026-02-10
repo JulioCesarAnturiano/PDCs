@@ -61,13 +61,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         // Roles
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
 
-        // Tipo Elección
-        Route::get('/tipo-eleccion', [VotoTipoEleccionController::class, 'index'])->name('tipo_eleccion.index');
-        Route::get('/tipo-eleccion/create', [VotoTipoEleccionController::class, 'create'])->name('tipo_eleccion.create');
-        Route::post('/tipo-eleccion', [VotoTipoEleccionController::class, 'store'])->name('tipo_eleccion.store');
-        Route::get('/tipo-eleccion/{id}/edit', [VotoTipoEleccionController::class, 'edit'])->name('tipo_eleccion.edit');
-        Route::put('/tipo-eleccion/{id}', [VotoTipoEleccionController::class, 'update'])->name('tipo_eleccion.update');
-        Route::delete('/tipo-eleccion/{id}', [VotoTipoEleccionController::class, 'destroy'])->name('tipo_eleccion.destroy');
+
 
         // Geográfico
         Route::get('/geografico', [VotoGeograficoController::class, 'index'])->name('geografico.index');
