@@ -9,17 +9,10 @@ use Spatie\Permission\Models\Role;
 
 class VotoUsuarioController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $q = $request->get('q');
-
-        $usuarios = VotoUsuario::query()
-            ->when($q, fn($qq) => $qq->where('nombre_usuario', 'like', "%{$q}%"))
-            ->orderByDesc('id_usuario')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('admin.usuarios.index', compact('usuarios', 'q'));
+        $usuarios = VotoUsuario::orderBy('id_usuario', 'desc')->paginate(10);
+        return view('admin.usuarios.index', compact('usuarios'));
     }
 
     public function create()
@@ -32,49 +25,52 @@ class VotoUsuarioController extends Controller
     {
         $data = $request->validate([
             'nombre_usuario' => ['required','string','max:150','unique:voto_usuario,nombre_usuario'],
-            'contrasena' => ['required','string','min:6'],
+            'contrasena' => ['required','string','min:4'],
             'fecha_fin' => ['nullable','date'],
             'roles' => ['nullable','array'],
-            'roles.*' => ['string','exists:roles,name'],
+            'roles.*' => ['string'],
         ]);
 
-        $usuario = VotoUsuario::create([
-            'nombre_usuario' => $data['nombre_usuario'],
-            'contrasena' => $data['contrasena'], // mutator encripta
-            'fecha_fin' => $data['fecha_fin'] ?? null,
-        ]);
+        $user = new VotoUsuario();
+        $user->nombre_usuario = $data['nombre_usuario'];
+        $user->contrasena = $data['contrasena']; // se hashea por mutator
+        $user->fecha_fin = $data['fecha_fin'] ?? null;
+        $user->save();
 
-        $usuario->syncRoles($data['roles'] ?? []);
+        $user->syncRoles($data['roles'] ?? []);
 
         return redirect()->route('admin.usuarios.index')->with('success', 'Usuario creado correctamente.');
     }
 
-    public function edit(VotoUsuario $usuario)
+    public function edit($id)
     {
+        $usuario = VotoUsuario::findOrFail($id);
         $roles = Role::orderBy('name')->get();
-        $usuarioRoles = $usuario->roles->pluck('name')->toArray();
+        $rolesAsignados = $usuario->roles->pluck('name')->toArray();
 
-        return view('admin.usuarios.edit', compact('usuario', 'roles', 'usuarioRoles'));
+        return view('admin.usuarios.edit', compact('usuario','roles','rolesAsignados'));
     }
 
-    public function update(Request $request, VotoUsuario $usuario)
+    public function update(Request $request, $id)
     {
+        $usuario = VotoUsuario::findOrFail($id);
+
         $data = $request->validate([
             'nombre_usuario' => [
                 'required','string','max:150',
                 Rule::unique('voto_usuario','nombre_usuario')->ignore($usuario->id_usuario, 'id_usuario')
             ],
-            'contrasena' => ['nullable','string','min:6'],
+            'contrasena' => ['nullable','string','min:4'],
             'fecha_fin' => ['nullable','date'],
             'roles' => ['nullable','array'],
-            'roles.*' => ['string','exists:roles,name'],
+            'roles.*' => ['string'],
         ]);
 
         $usuario->nombre_usuario = $data['nombre_usuario'];
         $usuario->fecha_fin = $data['fecha_fin'] ?? null;
 
         if (!empty($data['contrasena'])) {
-            $usuario->contrasena = $data['contrasena'];
+            $usuario->contrasena = $data['contrasena']; // mutator bcrypt
         }
 
         $usuario->save();
@@ -83,9 +79,11 @@ class VotoUsuarioController extends Controller
         return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
-    public function destroy(VotoUsuario $usuario)
+    public function destroy($id)
     {
+        $usuario = VotoUsuario::findOrFail($id);
         $usuario->delete();
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado (soft delete).');
     }
 }

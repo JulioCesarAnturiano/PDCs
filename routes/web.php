@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\VotoUsuarioController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\VotoTipoEleccionController;
 
 // Módulos
 use App\Http\Controllers\VotoGeograficoController;
@@ -24,7 +25,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// ✅ Vista pública correcta (archivo real: resultados.blade.php)
+// Vista pública correcta (archivo real: resultados.blade.php)
 Route::view('/resultados', 'admin.auth.resultados')->name('resultado.publico');
 
 /*
@@ -56,7 +57,7 @@ Route::prefix('admin')
             return redirect()->route('admin.dashboard');
         })->name('home');
 
-        // Dashboard
+        // Dashboard (cualquier usuario logueado)
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
 
@@ -78,6 +79,14 @@ Route::prefix('admin')
             // Roles (Spatie)
             Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
 
+            // Tipo Elección (voto_tipo_eleccion)
+            Route::get('/tipo-eleccion', [VotoTipoEleccionController::class, 'index'])->name('tipo_eleccion.index');
+            Route::get('/tipo-eleccion/create', [VotoTipoEleccionController::class, 'create'])->name('tipo_eleccion.create');
+            Route::post('/tipo-eleccion', [VotoTipoEleccionController::class, 'store'])->name('tipo_eleccion.store');
+            Route::get('/tipo-eleccion/{id}/edit', [VotoTipoEleccionController::class, 'edit'])->name('tipo_eleccion.edit');
+            Route::put('/tipo-eleccion/{id}', [VotoTipoEleccionController::class, 'update'])->name('tipo_eleccion.update');
+            Route::delete('/tipo-eleccion/{id}', [VotoTipoEleccionController::class, 'destroy'])->name('tipo_eleccion.destroy');
+
             // Geográfico
             Route::get('/geografico', [VotoGeograficoController::class, 'index'])->name('geografico.index');
             Route::get('/geografico/create', [VotoGeograficoController::class, 'create'])->name('geografico.create');
@@ -97,7 +106,7 @@ Route::prefix('admin')
 
         /*
         |--------------------------------------------------------------------------
-        | VOTOS (admin o transcriptor)
+        | VOTOS (operador)  ✅ como tú lo tenías
         |--------------------------------------------------------------------------
         */
         Route::middleware(['role:operador'])->group(function () {
@@ -105,4 +114,15 @@ Route::prefix('admin')
             Route::get('/votos/registrar', [VotosController::class, 'registrar'])->name('votos.registrar');
             Route::post('/votos', [VotosController::class, 'store'])->name('votos.store');
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si quieres lo del prompt (admin o transcriptor), usa esto en vez de operador:
+        |--------------------------------------------------------------------------
+        | Route::middleware(['role:admin|transcriptor'])->group(function () {
+        |     Route::get('/votos', [VotosController::class, 'index'])->name('votos.index');
+        |     Route::get('/votos/registrar', [VotosController::class, 'registrar'])->name('votos.registrar');
+        |     Route::post('/votos', [VotosController::class, 'store'])->name('votos.store');
+        | });
+        */
     });
