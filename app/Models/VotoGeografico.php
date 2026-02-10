@@ -41,4 +41,9 @@ class VotoGeografico extends Model
     {
         return $this->hasMany(VotoMesa::class, 'id_recinto', 'id_geografico');
     }
+    public function recinto()
+{
+    return $this->belongsTo(\App\Models\VotoGeografico::class, 'id_recinto', 'id_geografico');
+}
+
 }
